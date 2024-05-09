@@ -1,0 +1,3 @@
+/home/pyth/STM32CubeIDE/workspace_1.13.2/lvgl/cmake-build-debug/CMakeFiles/lvgl.elf.dir
+/home/pyth/STM32CubeIDE/workspace_1.13.2/lvgl/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/pyth/STM32CubeIDE/workspace_1.13.2/lvgl/cmake-build-debug/CMakeFiles/rebuild_cache.dir
