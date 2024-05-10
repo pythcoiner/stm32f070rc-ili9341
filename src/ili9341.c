@@ -1,4 +1,5 @@
 /* vim: set ai et ts=4 sw=4: */
+#include "main.h"
 #include "stm32f0xx_hal.h"
 #include "ili9341.h"
 
@@ -226,7 +227,7 @@ void ILI9341_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 }
 
 static void ILI9341_WriteChar(uint16_t x, uint16_t y, char ch, FontDef font, uint16_t color, uint16_t bgcolor) {
-    uint32_t i, b, j;
+    unsigned int i, b, j;
 
     ILI9341_SetAddressWindow(x, y, x+font.width-1, y+font.height-1);
 
