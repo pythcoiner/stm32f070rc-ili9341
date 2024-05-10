@@ -41,4 +41,5 @@ add_executable(${PROJECT_NAME}
         src/sysmem.c
         src/syscalls.c
         src/stm32f0xx_it.c
+        src/ili9341.c
 )
