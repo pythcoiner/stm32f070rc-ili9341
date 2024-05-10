@@ -42,4 +42,10 @@ add_executable(${PROJECT_NAME}
         src/syscalls.c
         src/stm32f0xx_it.c
         src/ili9341.c
+        ili9341/include/core.h
+        ili9341/src/core.c
+        ili9341/src/delay.c
+        ili9341/src/dma.c
+        ili9341/src/graph.c
+        ili9341/src/text.c
 )

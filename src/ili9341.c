@@ -3,8 +3,53 @@
 #include "stm32f0xx_hal.h"
 #include "ili9341.h"
 
-uint8_t maxLines = 18;
-uint8_t screenBuffer[ILI9341_WIDTH * 2 * 20];
+#define CPU 1
+#define DMA 2
+#define MAX_LINES 8
+
+uint8_t screenBufferA[ILI9341_WIDTH * 2 * (MAX_LINES + 1)];
+uint8_t screenBufferB[ILI9341_WIDTH * 2 * (MAX_LINES + 1)];
+
+uint8_t bufferAOwner = 0;   // 0 = free, 1 = cpu use buffer, 2 = dma use buffer
+uint8_t bufferBOwner = 0;   // 0 = free, 1 = cpu use buffer, 2 = dma use buffer
+
+static uint8_t* takeBuffer() {
+
+    while (1) {
+        if (bufferAOwner == 0) {
+            bufferAOwner = CPU;
+            return screenBufferA;
+        } else if (bufferBOwner == 0) {
+            bufferBOwner = CPU;
+            return screenBufferB;
+        }
+    }
+
+}
+
+static void moveBufferToDma(const uint8_t* buffer) {
+    while (1) {
+        if ((bufferAOwner != DMA) && (bufferBOwner != DMA )) {
+            if (buffer == screenBufferA) {
+                bufferAOwner = DMA;
+                return;
+            } else if (buffer == screenBufferB) {
+                bufferBOwner = DMA;
+                return;
+            }
+        }
+    }
+
+}
+
+void releaseBuffer() {
+    if (bufferAOwner == DMA) {
+        bufferAOwner = 0;
+    } else if (bufferBOwner == DMA) {
+        bufferBOwner = 0;
+    }
+
+}
 
 
 static void ILI9341_Select() {
@@ -280,29 +325,40 @@ void ILI9341_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint1
     ILI9341_Select();
     ILI9341_SetAddressWindow(x, y, x+w-1, y+h-1);
 
-
-    for (int i = 0; i < w * 2 * maxLines; i++) {
-            screenBuffer[i] = color >> 8;       // High byte
-            screenBuffer[i + 1] = color & 0xFF; // Low byte
-        }
-
-    uint8_t laps = h / maxLines;
-    uint8_t remain = h % maxLines;
+    uint8_t laps = h / MAX_LINES;
+    uint8_t remain = h % MAX_LINES;
 
 
     HAL_GPIO_WritePin(ILI9341_DC_GPIO_Port, ILI9341_DC_Pin, GPIO_PIN_SET);
 
-    for (int i = 0; i < laps; i++) {
-    	HAL_SPI_Transmit(&ILI9341_SPI_PORT, screenBuffer, w * 2 * maxLines , HAL_MAX_DELAY);
+    uint8_t* cpuBuffer;
+    uint8_t* dmaBuffer;
+
+    for (int i = 0; i <= laps; i++) {
+        // fill buffer
+        cpuBuffer = takeBuffer();
+        for (int j = 0; j <= w  * MAX_LINES; j++) {
+            cpuBuffer[j*2] = color >> 8;       // High byte
+            cpuBuffer[(j*2) + 1] = color & 0xFF; // Low byte
+        }
+
+        dmaBuffer = cpuBuffer;
+        moveBufferToDma(cpuBuffer);
+        HAL_SPI_Transmit_DMA(&ILI9341_SPI_PORT, dmaBuffer, w * 2 * MAX_LINES );
     	//HAL_Delay(30);
     }
 
     if (remain > 0) {
-    	HAL_SPI_Transmit(&ILI9341_SPI_PORT, screenBuffer, w * 2 * remain , HAL_MAX_DELAY);
+        cpuBuffer = takeBuffer();
+        for (int j = 0; j < w * 2 * remain; j++) {
+            cpuBuffer[j*2] = color >> 8;       // High byte
+            cpuBuffer[(j*2) + 1] = color & 0xFF; // Low byte
+        }
+
+        dmaBuffer = cpuBuffer;
+        moveBufferToDma(cpuBuffer);
+        HAL_SPI_Transmit_DMA(&ILI9341_SPI_PORT, dmaBuffer, w * 2 * remain );
     }
-
-
-
 
     ILI9341_Unselect();
 }

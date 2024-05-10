@@ -40,16 +40,20 @@ int main(void)
 
   while (1)
   {
-	  ILI9341_FillRectangle(50, 50, 140, 220, ILI9341_MAGENTA);
+      ILI9341_FillScreen(ILI9341_MAGENTA);
+//	  ILI9341_FillRectangle(50, 50, 140, 220, ILI9341_MAGENTA);
 	  HAL_Delay(500);
       HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	  ILI9341_FillRectangle(50, 50, 140, 220, ILI9341_GREEN);
+      ILI9341_FillScreen(ILI9341_GREEN);
+//	  ILI9341_FillRectangle(50, 50, 140, 220, ILI9341_GREEN);
 	  HAL_Delay(500);
       HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	  ILI9341_FillRectangle(50, 50, 140, 220, ILI9341_RED);
+      ILI9341_FillScreen(ILI9341_RED);
+//	  ILI9341_FillRectangle(50, 50, 140, 220, ILI9341_RED);
 	  HAL_Delay(500);
       HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	  ILI9341_FillRectangle(50, 50, 140, 220, ILI9341_CYAN);
+      ILI9341_FillScreen(ILI9341_CYAN);
+//	  ILI9341_FillRectangle(50, 50, 140, 220, ILI9341_CYAN);
 	  HAL_Delay(500);
       HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 
